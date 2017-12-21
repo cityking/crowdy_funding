@@ -1,0 +1,430 @@
+LOG:  database system was shut down at 2017-08-15 15:19:06 CST
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  autovacuum launcher started
+LOG:  database system is ready to accept connections
+FATAL:  database "crowd_funding_db" does not exist
+ERROR:  relation "personal_center_userinfo" does not exist at character 160
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone" FROM "personal_center_userinfo"
+ERROR:  relation "personal_center_userinfo" does not exist at character 160
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  relation "personal_center_userinfo" does not exist at character 160
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  relation "personal_center_userinfo" does not exist at character 160
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  relation "personal_center_userinfo" does not exist at character 160
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  value too long for type character varying(2)
+STATEMENT:  INSERT INTO "personal_center_userinfo" ("user_name", "user_sex", "phone") VALUES ('cityking', 'male', '18221339272') RETURNING "personal_center_userinfo"."id"
+ERROR:  syntax error at or near "p" at character 1
+STATEMENT:  p 
+	select * from personal_center_userinfo
+	;
+ERROR:  syntax error at or near "select" at character 39
+STATEMENT:  delete from personal_center_userinfo；
+	select * from personal_center_userinfo;
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo"
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.img does not exist at character 156
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  null value in column "img" violates not-null constraint
+DETAIL:  Failing row contains (1, cityking, male, 18221339272, null).
+STATEMENT:  insert into "public"."personal_center_userinfo" ( "id", "user_sex", "phone", "user_name") values ( '1', 'male', '18221339272', 'cityking') RETURNING *
+ERROR:  null value in column "img" violates not-null constraint
+DETAIL:  Failing row contains (1, cityking, male, 18221339272, null).
+STATEMENT:  insert into "public"."personal_center_userinfo" ( "id", "user_sex", "phone", "user_name") values ( '1', 'male', '18221339272', 'cityking') RETURNING *
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo"
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.wallet_bind does not exist at character 190
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."img", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card" FROM "personal_center_userinfo" LIMIT 21
+FATAL:  database "crowdy_funding_db" does not exist
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo"
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  column personal_center_userinfo.password does not exist at character 81
+HINT:  Perhaps you meant to reference the column "personal_center_userinfo.pass_word".
+STATEMENT:  SELECT "personal_center_userinfo"."id", "personal_center_userinfo"."user_name", "personal_center_userinfo"."password", "personal_center_userinfo"."user_sex", "personal_center_userinfo"."phone", "personal_center_userinfo"."avatar", "personal_center_userinfo"."wallet_bind", "personal_center_userinfo"."address", "personal_center_userinfo"."bank_card", "personal_center_userinfo"."sign" FROM "personal_center_userinfo" LIMIT 21
+ERROR:  value too long for type character varying(20)
+STATEMENT:  INSERT INTO "personal_center_helperinfo" ("name", "ID_card", "disease", "hospital", "medical_certificate", "relationship", "property_status") VALUES ('cccc', 'aadad', 'dsa', 'sds', 'medical_certificate/2017/08/123.jpg', 'relationship/2017/08/234.jpg', 'property_status/2017/08/123.jpg') RETURNING "personal_center_helperinfo"."id"
+ERROR:  table "personal_center_image" does not exist
+STATEMENT:  DROP TABLE "personal_center_image" CASCADE
+ERROR:  table "personal_center_image" does not exist
+STATEMENT:  DROP TABLE "personal_center_image" CASCADE
+ERROR:  duplicate key value violates unique constraint "personal_center_userinfo_phone_key"
+DETAIL:  Key (phone)=(18221339272) already exists.
+STATEMENT:  INSERT INTO "personal_center_userinfo" ("user_name", "password", "user_sex", "phone", "avatar", "wallet_bind", "address", "bank_card", "sign") VALUES ('cityking', 'ct065410', '0', '18221339272', 'avatar/default.png', '622', 'sdgg', '132442', '13444') RETURNING "personal_center_userinfo"."id"
+ERROR:  duplicate key value violates unique constraint "personal_center_userinfo_phone_key"
+DETAIL:  Key (phone)=(18221339272) already exists.
+STATEMENT:  INSERT INTO "personal_center_userinfo" ("user_name", "password", "user_sex", "phone", "avatar", "wallet_bind", "address", "bank_card", "sign") VALUES ('cityking', 'ct065410', '0', '18221339272', 'avatar/default.png', '622', 'sdgg', '132442', '13444') RETURNING "personal_center_userinfo"."id"
+ERROR:  duplicate key value violates unique constraint "personal_center_userinfo_phone_key"
+DETAIL:  Key (phone)=(18221339272) already exists.
+STATEMENT:  INSERT INTO "personal_center_userinfo" ("user_name", "password", "user_sex", "phone", "avatar", "wallet_bind", "address", "bank_card", "sign") VALUES ('cityking', 'ct065410', '0', '18221339272', 'avatar/default.png', '622', 'sdgg', '132442', '13444') RETURNING "personal_center_userinfo"."id"
+ERROR:  value too long for type character varying(20)
+STATEMENT:  UPDATE "personal_center_userinfo" SET "user_name" = 'cityking', "password" = 'ct065410', "user_sex" = '0', "phone" = '18221339272', "avatar" = 'avatar/2017/08/123.jpg', "wallet_bind" = '622', "address" = 'sdgg', "bank_card" = '132442', "sign" = '13444' WHERE "personal_center_userinfo"."id" = 6
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 1
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 1
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 21
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 1
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 1
+ERROR:  column project_content_iteminfo.image_show does not exist at character 459
+STATEMENT:  SELECT "project_content_iteminfo"."id", "project_content_iteminfo"."initiator_id", "project_content_iteminfo"."item_type", "project_content_iteminfo"."item_name", "project_content_iteminfo"."funding_money", "project_content_iteminfo"."objective_money", "project_content_iteminfo"."create_time", "project_content_iteminfo"."total_time", "project_content_iteminfo"."left_time", "project_content_iteminfo"."item_content", "project_content_iteminfo"."fund_use", "project_content_iteminfo"."image_show", "project_content_iteminfo"."examination_status" FROM "project_content_iteminfo" LIMIT 1
+ERROR:  invalid input syntax for integer: ""
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ALTER COLUMN "payback_id" TYPE integer USING "payback_id"::integer, ALTER COLUMN "payback_id" DROP NOT NULL
+ERROR:  invalid input syntax for integer: ""
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ALTER COLUMN "payback_id" TYPE integer USING "payback_id"::integer, ALTER COLUMN "payback_id" DROP NOT NULL
+ERROR:  invalid input syntax for integer: ""
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ALTER COLUMN "payback_id" TYPE integer USING "payback_id"::integer, ALTER COLUMN "payback_id" DROP NOT NULL
+ERROR:  invalid input syntax for integer: ""
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ALTER COLUMN "payback_id" TYPE integer USING "payback_id"::integer, ALTER COLUMN "payback_id" DROP NOT NULL
+ERROR:  column "medias" contains null values
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ADD COLUMN "medias" varchar(20) NOT NULL
+ERROR:  invalid input syntax for integer: ""
+STATEMENT:  ALTER TABLE "project_content_iteminfo" ALTER COLUMN "payback_id" TYPE integer USING "payback_id"::integer, ALTER COLUMN "payback_id" DROP NOT NULL
+ERROR:  column personal_center_order.FId does not exist at character 8
+STATEMENT:  SELECT "personal_center_order"."FId", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.FId does not exist at character 8
+STATEMENT:  SELECT "personal_center_order"."FId", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.FId does not exist at character 8
+STATEMENT:  SELECT "personal_center_order"."FId", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.FId does not exist at character 8
+STATEMENT:  SELECT "personal_center_order"."FId", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.FId does not exist at character 8
+STATEMENT:  SELECT "personal_center_order"."FId", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.item_name does not exist at character 79
+STATEMENT:  SELECT "personal_center_order"."order_id", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.item_name does not exist at character 79
+STATEMENT:  SELECT "personal_center_order"."order_id", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.item_name does not exist at character 79
+STATEMENT:  SELECT "personal_center_order"."order_id", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.item_name does not exist at character 79
+STATEMENT:  SELECT "personal_center_order"."order_id", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  column personal_center_order.item_name does not exist at character 79
+STATEMENT:  SELECT "personal_center_order"."order_id", "personal_center_order"."user_id", "personal_center_order"."item_name", "personal_center_order"."support_money", "personal_center_order"."trade_time", "personal_center_order"."trade_method", "personal_center_order"."trade_result", "personal_center_order"."payback", "personal_center_order"."delivery_status", "personal_center_order"."consignee_name", "personal_center_order"."consignee_phone", "personal_center_order"."consignee_address" FROM "personal_center_order" WHERE "personal_center_order"."item_name" = '“让电传递爱”' ORDER BY "personal_center_order"."trade_time" DESC LIMIT 10
+ERROR:  null value in column "delivery_status" violates not-null constraint
+DETAIL:  Failing row contains (1, 2017-09-04 17:56:17+08, 0, 0, 0, null, null, null, null, null, null, null).
+STATEMENT:  insert into "public"."personal_center_order" ( "trade_result", "payback", "trade_time", "trade_method", "order_id") values ( '0', '0', '2017-09-04 17:56:17', '0', '1') RETURNING *
+ERROR:  null value in column "item_name" violates not-null constraint
+DETAIL:  Failing row contains (1, 2017-09-04 17:56:17+08, 0, 0, 0, 0, 8, null, null, null, null, null).
+STATEMENT:  insert into "public"."personal_center_order" ( "trade_result", "payback", "trade_time", "trade_method", "order_id", "user_id", "delivery_status") values ( '0', '0', '2017-09-04 17:56:17', '0', '1', '8', '0') RETURNING *
+ERROR:  null value in column "support_money" violates not-null constraint
+DETAIL:  Failing row contains (1, 2017-09-04 17:56:17+08, 0, 0, 0, 0, 8, null, null, null, “让电传递爱”, null).
+STATEMENT:  insert into "public"."personal_center_order" ( "trade_result", "payback", "item_name", "trade_time", "trade_method", "order_id", "user_id", "delivery_status") values ( '0', '0', '“让电传递爱”', '2017-09-04 17:56:17', '0', '1', '8', '0') RETURNING *
+ERROR:  duplicate key value violates unique constraint "personal_center_order_pkey"
+DETAIL:  Key (order_id)=(1) already exists.
+STATEMENT:  insert into "public"."personal_center_order" ( "support_money", "trade_result", "payback", "item_name", "trade_time", "trade_method", "user_id", "delivery_status") values ( '40', '0', '0', '北京金岳台精品酒店', '2017-09-04 18:01:35', '0', '9', '0') RETURNING *
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (25 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (28 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+cp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+ERROR:  could not extend file "base/27789/27901": No space left on device
+HINT:  Check free disk space.
+CONTEXT:  COPY trade_record_copy, line 1389025
+STATEMENT:  COPY trade_record_copy (id, account, trade_type, trade_number, money_before, money_balance, money_now, mark, create_time) FROM stdin;
+	
+cp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+cp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+WARNING:  archiving transaction log file "00000009000000080000007B" failed too many times, will try again later
+LOG:  could not open temporary statistics file "pg_stat_tmp/global.tmp": No space left on device
+LOG:  could not open temporary statistics file "pg_stat_tmp/global.tmp": No space left on device
+LOG:  could not open temporary statistics file "pg_stat_tmp/global.tmp": No space left on device
+LOG:  could not open temporary statistics file "pg_stat_tmp/gcp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+cp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+cp: /usr/local/var/log/psql/00000009000000080000007B: No space left on device
+LOG:  archive command failed with exit code 1
+DETAIL:  The failed archive command was: cp pg_xlog/00000009000000080000007B /usr/local/var/log/psql/00000009000000080000007B
+WARNING:  archiving transaction log file "00000009000000080000007B" failed too many times, will try again later
+ERROR:  canceling autovacuum task
+CONTEXT:  automatic analyze of table "gcbSystem.gcb.trade_record_"
+ERROR:  permission denied to create "pg_catalog.customer_compute"
+DETAIL:  System catalog modifications are currently disallowed.
+STATEMENT:  CREATE TABLE customer_compute (
+	    id integer DEFAULT nextval('computer_id_seq'::regclass) NOT NULL,
+	    account character varying(20) NOT NULL,
+	    gcb double precision,
+	    level character varying,
+	    power_rent double precision,
+	    power_make double precision,
+	    power_self double precision,
+	    referer_account character varying(20),
+	    node_account character varying(20),
+	    node_point character varying,
+	    deep smallint,
+	    crash_award double precision,
+	    leader_award double precision,
+	    node_award double precision,
+	    count_l double precision,
+	    count_r double precision,
+	    reg_account character varying(20),
+	    info_detail character varying(90),
+	    local_award integer DEFAULT 0
+	);
+	
+	
+	
+ERROR:  relation "customer_compute" does not exist
+STATEMENT:  ALTER TABLE customer_compute OWNER TO "gcbAdmin";
+	
+	
+ERROR:  relation "customer_compute" does not exist
+STATEMENT:  COPY customer_compute (id, account, gcb, level, power_rent, power_make, power_self, referer_account, node_account, node_point, deep, crash_award, leader_award, node_award, count_l, count_r, reg_account, info_detail, local_award) FROM stdin;
+	
+LOG:  checkpoints are occurring too frequently (25 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (28 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+ERROR:  canceling statement due to user request
+CONTEXT:  COPY trade_record, line 10641921: "11448049	5387001143270510	reaward	51014965125557727363	190	0	190	奖金补发, , 当奖金超出自..."
+STATEMENT:  COPY trade_record (id, account, trade_type, trade_number, money_before, money_balance, money_now, mark, create_time) FROM stdin;
+	
+LOG:  incomplete message from client
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (23 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (25 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (21 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (23 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (21 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (25 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (24 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (22 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (23 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+LOG:  checkpoints are occurring too frequently (23 seconds apart)
+HINT:  Consider increasing the configuration parameter "max_wal_size".
+ERROR:  canceling autovacuum task
+CONTEXT:  automatic analyze of table "gcbSystem.gcb.trade_record_copy"
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON SCHEMA gcb FROM PUBLIC;
+	REVOKE ALL ON SCHEMA gcb FROM "gcbAdmin";
+	GRANT ALL ON SCHEMA gcb TO "gcbAdmin";
+	GRANT ALL ON SCHEMA gcb TO root;
+	
+	
+	
+ERROR:  role "postgres" does not exist
+STATEMENT:  REVOKE ALL ON SCHEMA public FROM PUBLIC;
+	REVOKE ALL ON SCHEMA public FROM postgres;
+	GRANT ALL ON SCHEMA public TO postgres;
+	GRANT ALL ON SCHEMA public TO PUBLIC;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE account_main FROM PUBLIC;
+	REVOKE ALL ON TABLE account_main FROM "gcbAdmin";
+	GRANT ALL ON TABLE account_main TO "gcbAdmin";
+	GRANT ALL ON TABLE account_main TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE admin FROM PUBLIC;
+	REVOKE ALL ON TABLE admin FROM "gcbAdmin";
+	GRANT ALL ON TABLE admin TO "gcbAdmin";
+	GRANT ALL ON TABLE admin TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE announcements FROM PUBLIC;
+	REVOKE ALL ON TABLE announcements FROM "gcbAdmin";
+	GRANT ALL ON TABLE announcements TO "gcbAdmin";
+	GRANT ALL ON TABLE announcements TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE card_apply FROM PUBLIC;
+	REVOKE ALL ON TABLE card_apply FROM "gcbAdmin";
+	GRANT ALL ON TABLE card_apply TO "gcbAdmin";
+	GRANT ALL ON TABLE card_apply TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE customer FROM PUBLIC;
+	REVOKE ALL ON TABLE customer FROM "gcbAdmin";
+	GRANT ALL ON TABLE customer TO "gcbAdmin";
+	GRANT ALL ON TABLE customer TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE customer_grade FROM PUBLIC;
+	REVOKE ALL ON TABLE customer_grade FROM "gcbAdmin";
+	GRANT ALL ON TABLE customer_grade TO "gcbAdmin";
+	GRANT ALL ON TABLE customer_grade TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE gcb_price FROM PUBLIC;
+	REVOKE ALL ON TABLE gcb_price FROM "gcbAdmin";
+	GRANT ALL ON TABLE gcb_price TO "gcbAdmin";
+	GRANT ALL ON TABLE gcb_price TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE message FROM PUBLIC;
+	REVOKE ALL ON TABLE message FROM "gcbAdmin";
+	GRANT ALL ON TABLE message TO "gcbAdmin";
+	GRANT ALL ON TABLE message TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE message_status FROM PUBLIC;
+	REVOKE ALL ON TABLE message_status FROM "gcbAdmin";
+	GRANT ALL ON TABLE message_status TO "gcbAdmin";
+	GRANT ALL ON TABLE message_status TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE operations FROM PUBLIC;
+	REVOKE ALL ON TABLE operations FROM "gcbAdmin";
+	GRANT ALL ON TABLE operations TO "gcbAdmin";
+	GRANT ALL ON TABLE operations TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE sms_count FROM PUBLIC;
+	REVOKE ALL ON TABLE sms_count FROM "gcbAdmin";
+	GRANT ALL ON TABLE sms_count TO "gcbAdmin";
+	GRANT ALL ON TABLE sms_count TO root;
+	
+	
+	
+ERROR:  role "root" does not exist
+STATEMENT:  REVOKE ALL ON TABLE sms_detail FROM PUBLIC;
+	REVOKE ALL ON TABLE sms_detail FROM "gcbAdmin";
+	GRANT ALL ON TABLE sms_detail TO "gcbAdmin";
+	GRANT ALL ON TABLE sms_detail TO root;
+	
+	
+	
+ERROR:  role "postgres" does not exist
+STATEMENT:  ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gcb REVOKE ALL ON TABLES  FROM PUBLIC;
+	ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gcb REVOKE ALL ON TABLES  FROM postgres;
+	ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gcb GRANT ALL ON TABLES  TO root;
+	
+	
+	
+LOG:  autovacuum launcher shutting down
+LOG:  received smart shutdown request
+FATAL:  terminating connection due to administrator command
+LOG:  shutting down
+LOG:  received SIGHUP, reloading configuration files
+LOG:  database system is shut down
