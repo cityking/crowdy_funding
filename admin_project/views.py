@@ -3,7 +3,7 @@ from .models import *
 from django.http import JsonResponse,HttpResponse
 from crowdy_funding.project_content.models import *
 from crowdy_funding.personal_center.models import *
-
+from datetime import datetime
 from config.tool import *
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -30,12 +30,14 @@ def admin_login(request):
                     result = {'status':'200', 'message':'登录成功', 'content':data}
 
             except Exception as e:
+                log_exception()
                 result = {'status':'400', 'message':'json数据解析错误 %s' % data, 'content':'none'}
                 return JsonResponse(result, safe=False)
 
            
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 @csrf_exempt
 @admin_authentication
@@ -68,12 +70,14 @@ def add_adminastrator(request):
                     result = {'status':'400', 'message':'权限不足', 'content':'none'}
 
             except Exception as e:
+                log_exception()
                 result = {'status':'400', 'message':'json数据解析错误 %s' % data, 'content':'none'}
                 return JsonResponse(result, safe=False)
 
            
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -87,7 +91,8 @@ def get_adminastrators_info(request):
             else:
                 result = {'status':'400', 'message':'没有管理员', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 @admin_authentication
 def get_adminastrator_info(request):
@@ -101,7 +106,8 @@ def get_adminastrator_info(request):
             else:
                 result = {'status':'400', 'message':'没有此管理员', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -123,7 +129,8 @@ def del_adminastrator(request):
 
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -149,7 +156,8 @@ def update_password(request):
                 result = {'status':'400', 'message':'密码不能为空', 'content':'none'}
             
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False) 
 
 @pagination
@@ -164,6 +172,9 @@ def item_list(request):
             examination_status = request.GET.get('status')
             if examination_status:
                 items = items.filter(examination_status=examination_status).order_by('-create_time')
+            recommand = request.GET.get('recommand')
+            if recommand == '1':
+                items = items.filter(recommand='1')
 
             item_list = []
             for item in items:
@@ -172,7 +183,8 @@ def item_list(request):
 
             result = {'status':'200', 'message':'success', 'content':item_list} 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'} 
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'} 
         print(result)
 
         return JsonResponse(result, safe=False)
@@ -189,8 +201,9 @@ def item_bref_detail(request):
             item_detail = item.get_item_bref_detail()
             result = {'status':'200', 'message':'success', 'content':item_detail} 
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'} 
+            result = {'status':'400', 'message':'', 'content':'none'} 
         return JsonResponse(result, safe=False)
     else:
         response = JsonResponse(None, safe=False)
@@ -213,7 +226,8 @@ def del_item(request):
                 result = {'status':'400', 'message':'项目不存在', 'content':'none'}
                 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -229,7 +243,8 @@ def get_support_list(request):
                 info['item_name'] = item.item_name
             result = {'status':'200', 'message':'获取成功', 'content':support_list}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -241,6 +256,9 @@ def update_item(request):
             item_id = data.get('item_id')
             item = ItemInfo.objects.get(id=item_id)
             images = data.get('ori_img')
+            reback = data.get('reback')
+            if reback:
+                data['reback'] = eval(reback)
             if not images:
                 images = []
             else:
@@ -258,8 +276,9 @@ def update_item(request):
             item.update(data)
             result = {'status':'200', 'message':'修改成功', 'content':'none'}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -280,6 +299,14 @@ def update_item_status(request):
             item = ItemInfo.objects.get(id=item_id)
             examination_status = str(data.get('status'))
             if examination_status:
+                if examination_status=='1': 
+                    user = item.initiator
+                    items = ItemInfo.objects.filter(initiator=user).filter(examination_status='1')
+                    if items:
+                        result = {'status':'400', 'message':'你还有其他项目在进行', 'content':'none'}
+                        return JsonResponse(result, safe=False)
+                        
+                    item.examination_time = datetime.now()
                 item.examination_status = examination_status
                 item.save()
                 result = {'status':'200', 'message':'修改成功', 'content':'none'}
@@ -287,6 +314,7 @@ def update_item_status(request):
                 result = {'status':'400', 'message':'未传入状态', 'content':'none'}
                     
         except Exception as e:
+            log_exception()
             print(e)
             result = {'status':'400', 'message':traceback.print_exc(), 'content':'none'}
 
@@ -316,7 +344,8 @@ def add_announce(request):
                 result = {'status':'400', 'message':'添加失败', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 @csrf_exempt
 @admin_authentication
@@ -332,7 +361,8 @@ def update_announce(request):
             result = {'status':'200', 'message':'修改成功', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -350,7 +380,8 @@ def delete_announce(request):
             result = {'status':'200', 'message':'删除成功', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 
@@ -359,12 +390,13 @@ def delete_announce(request):
 def get_announce_list(request):
     if request.method == 'GET':
         try:
-            announce_list = Announcement.objects.all()
+            announce_list = Announcement.objects.all().order_by('-create_time')
             announce_list = [announce.get_info() for announce in announce_list]
             result = {'status':'200', 'message':'获取成功', 'content':announce_list}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -377,7 +409,8 @@ def get_announce(request):
             result = {'status':'200', 'message':'获取成功', 'content':content}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -400,7 +433,8 @@ def add_item_type(request):
             result = {'status':'200', 'message':'添加成功', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -419,7 +453,8 @@ def del_item_type(request):
             else:
                 result = {'status':'400', 'message':'该项目类型下面存在项目，不能删除', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -445,7 +480,8 @@ def update_item_type(request):
             result = {'status':'200', 'message':'添加成功', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 
@@ -453,11 +489,12 @@ def update_item_type(request):
 def get_user_list(request):
     if request.method == 'GET':
         try:
-            users = MyUser.objects.all()
+            users = MyUser.objects.all().order_by('-join_date')
             user_list = [user.get_bref() for user in users]
             result = {'status':'200', 'message':'获取成功', 'content':user_list}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -476,7 +513,8 @@ def lock_user(request):
             else:
                 result = {'status':'400', 'message':'没有找到该会员', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -495,7 +533,8 @@ def unlock_user(request):
             else:
                 result = {'status':'400', 'message':'没有找到该会员', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 
@@ -538,7 +577,8 @@ def get_payment_list(request):
                 payment_list.append(income)
             result = {'status':'200', 'message':'获取成功', 'content':payment_list}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}     
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}     
         return JsonResponse(result, safe=False)
 
 @admin_authentication
@@ -572,7 +612,8 @@ def get_support_list(request):
                 support_list.append(pay)
             result = {'status':'200', 'message':'获取成功', 'content':support_list}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}     
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}     
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -596,7 +637,8 @@ def add_carousel(request):
             carousel = Carousel.objects.create(item=item, carousel_img=carousel_img)
             result = {'status':'200', 'message':'添加成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -619,7 +661,8 @@ def del_carousel(request):
             carousel.delete() 
             result = {'status':'200', 'message':'删除成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -636,7 +679,8 @@ def get_carousel_list(request):
             result = {'status':'200', 'message':'获取成功', 'content':carousel_list}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -652,7 +696,8 @@ def update_item_fee(request):
             fee.save()
             result = {'status':'200', 'message':'更改成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -670,7 +715,8 @@ def update_charge_fee(request):
             fee.save()
             result = {'status':'200', 'message':'更改成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -685,7 +731,8 @@ def get_fees(request):
                     charge_fee = charge_fee.fee_money)
             result = {'status':'200', 'message':'获取成功', 'content':content}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -694,11 +741,12 @@ def get_fees(request):
 def get_report_list(request):
     if request.method == 'GET':
         try:
-            reports = Report.objects.all()
+            reports = Report.objects.all().order_by('-create_time')
             report_list = [report.get_info() for report in reports]
             result = {'status':'200', 'message':'获取成功', 'content':report_list}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -711,10 +759,12 @@ def get_trade_records(request):
             record_list = [record.get_info() for record in records]
             result = {'status':'200', 'message':'获取成功', 'content':record_list}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
+
 @csrf_exempt
 @admin_authentication
 def update_cash_status(request):
@@ -730,8 +780,64 @@ def update_cash_status(request):
             
             result = {'status':'200', 'message':'更改成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
  
+@csrf_exempt
+@admin_authentication
+def add_recommand(request):
+    if request.method == 'POST':
+        try:
+            data = request.body.decode()
+            data = json.loads(data)
+            item_id = data.get('item_id')
+            if item_id:
+                try:
+                    item = ItemInfo.objects.get(id=item_id)
+                    status = item.add_recommand()
+                    if status == '1':
+                        result = {'status':'200', 'message':'添加推荐成功', 'content':'none'}
+                    elif status == '0':
+                        result = {'status':'400', 'message':'项目未审核，不能添加推荐', 'content':'none'}
+                    elif status == '2':
+                        result = {'status':'400', 'message':'项目审核未通过，不能添加推荐', 'content':'none'}
+                    else:
+                        result = {'status':'400', 'message':'项目已结束，不能添加推荐', 'content':'none'}
+
+                except:
+                    log_exception()
+                    result = {'status':'400', 'message':'项目不存在', 'content':'none'}
+            else:
+                result = {'status':'400', 'message':'未传入item_id', 'content':'none'}
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False) 
+
+@csrf_exempt
+@admin_authentication
+def cancel_recommand(request):
+    if request.method == 'POST':
+        try:
+            data = request.body.decode()
+            data = json.loads(data)
+            item_id = data.get('item_id')
+            if item_id:
+                try:
+                    item = ItemInfo.objects.get(id=item_id)
+                    item.cancel_recommand()
+                    result = {'status':'200', 'message':'取消推荐成功', 'content':'none'}
+                except:
+                    log_exception()
+                    result = {'status':'400', 'message':'项目不存在', 'content':'none'}
+            else:
+                result = {'status':'400', 'message':'未传入item_id', 'content':'none'}
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False) 
+
+

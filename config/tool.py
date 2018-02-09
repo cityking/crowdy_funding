@@ -3,16 +3,20 @@ import uuid
 import json
 import requests
 import random
+import time
 import re
+import os
 from dateutil import tz  
 from datetime import datetime, timedelta
-from qiniu import Auth, put_data, BucketManager
+from qiniu import Auth, put_data, BucketManager, put_file
 from qiniu import PersistentFop, build_op, op_save, urlsafe_base64_encode
 #from config.myredis import MyRedis
-from myredis import MyRedis
+from .myredis import MyRedis
+from .log import logger
 import hashlib
 from urllib.parse import urljoin
 from django.http import JsonResponse
+import traceback
 trade_url = 'http://192.168.3.37:8000'
 #trade_url = 'http://120.76.137.157:47623'
 #version = '3.6.2'
@@ -21,6 +25,7 @@ access_key = 'nh_CyPoBjC5iVIfNVZJDz3WBErnvJoTunIptd_4U'
 secret_key = 'UL48VV2STK3CnCblGhyZeUUydrN6Idfd-EMKa3Xm'
 bucket_name = 'qql-vshop'
 bucket_domain = 'http://cdn.hopyun.com/'
+
 apix_key = '20d5b90afa61493259b85ddc66b9fd17'
 redis = MyRedis()
 
@@ -34,9 +39,9 @@ def make_password(data):
 def make_identity(mobile, user):
     identity = make_password(mobile+'%.2f' % random.random())
     redis = MyRedis()
-    key = 'identity' + identity 
+    key = 'identity_user' + identity 
     redis.set(key, user.id)
-    redis.expire(key, 7200)
+    redis.expire(key, 3600*24)
     return identity
 def make_admin_identity(nick_name, adminastrator):
     identity = make_password(nick_name+'%.2f' % random.random())
@@ -44,9 +49,12 @@ def make_admin_identity(nick_name, adminastrator):
     key = 'identity' + identity 
     value = 'admin%s' % adminastrator.nick_name
     redis.set(key, value)
-    redis.expire(key, 7200)
+    redis.expire(key, 3600*24)
     return identity
 
+def log_exception():
+    logger.info(traceback.format_exc())
+    print('traceback.format_exc():\n%s' % traceback.format_exc())
 
 
 #def get_user_identity(identity):
@@ -75,15 +83,17 @@ def authentication(fun):
                 except:
                     identity = None
         if identity:
-            key = 'identity' + identity
+            key = 'identity_user' + identity
             user_id = redis.get(key)
             
             if not user_id:
-                result = {'status':'400', 'message':'identity过期，请重新登录'}
+                result = {'status':'301', 'message':'identity过期，请重新登录'}
+                print(result)
                 return JsonResponse(result)
-            redis.expire(key, 300)
+            redis.expire(key, 3600*24)
         else:
             result = {'status':'300', 'message':'未登录'}
+            print(result)
             return JsonResponse(result)
         response = fun(request)
         return response
@@ -113,7 +123,7 @@ def admin_authentication(fun):
                 return JsonResponse(result)
             else:
                 if re.match('admin.*', value):
-                    redis.expire(key, 300)
+                    redis.expire(key, 3600*24)
                 else:
                     result = {'status':'300', 'message':'未登录'}
                     return JsonResponse(result)
@@ -192,6 +202,10 @@ def ndays_time(days):
     delta = timedelta(days=days)
     n_days = now + delta
     return n_days
+def get_upload_token():
+    auth = Auth(access_key, secret_key)
+    upload_token = auth.upload_token(bucket_name)
+    return upload_token
 
 def upload_file(data, header='', name=''):
     """
@@ -207,13 +221,27 @@ def upload_file(data, header='', name=''):
             tail = '.' + data.name.split('.')[-1]
     except Exception:
         tail = ''
+   
     filename = str(header) + str(uuid.uuid1()) + tail
     auth = Auth(access_key, secret_key)
     print(filename)
-    upload_token = auth.upload_token(bucket_name)
-    ret, info = put_data(upload_token, filename, data)
+    policy = {
+        "deadline":int(time.time()+3600),
+     }
+    upload_token = auth.upload_token(bucket_name, filename, 3600, policy)
+
+    with open(filename, 'wb') as temp_file:
+        temp_file.write(data)
+
+    ret, info = put_file(upload_token, filename, filename)
+
+    
+
+    #ret, info = put_data(upload_token, filename, data)
+
     if info.status_code == 200:
         file_url = filename
+        os.remove(filename)
         return file_url
     else:
         raise False
@@ -228,46 +256,57 @@ def get_uploaded(filename):
     auth = Auth(access_key, secret_key)
     bucket = BucketManager(auth)
     ret, info = bucket.stat(bucket_name, filename)
-    info = eval(info.text_body)
-    print(info)
-    return info
+    if info:
+        info = eval(info.text_body)
+        return info
+    else:
+        return 0
 
 def is_img_or_video(url):
-    key = url.split('/')[-1]
-    info = get_uploaded(key)
-    mimeType = info.get('mimeType')
-    is_img = False
-    is_video = False
-    if re.match('^image/.*', mimeType):
-        is_img = True
-    elif re.match('^video/.*', mimeType):
-        is_video = True
-    data = dict(is_img=is_img,
-            is_video=is_video)
-    print(data)
+    print(url)
+    if url:
+        key = url.split('/')[-1]
+        info = get_uploaded(key)
+    if info:
+        mimeType = info.get('mimeType')
+        is_img = False
+        is_video = False
+        if mimeType:
+            if re.match('^image/.*', mimeType):
+                is_img = True
+            elif re.match('^video/.*', mimeType):
+                is_video = True
+        data = dict(is_img=is_img,
+                is_video=is_video)
+    else:
+        data = dict(is_img=False,
+                    is_video=False)
     return data    
 def get_screenshot(url):
-    key = url.split('/')[-1]
-    auth = Auth(access_key, secret_key)
-    
-    #截图使用的队列名称。
-    pipeline = 'mpsdemo'
-    
-    #要进行的截图操作。
-    fops = 'vframe/jpg/offset/1/w/480/h/360/rotate/90'
-    
-    #可以对截取后的图片进行使用saveas参数自定义命名，当然也可以不指定文件会默认命名并保存在当前空间
-    file_name = key.split('.')[0] + '.jpg'
-    saveas_key = urlsafe_base64_encode('%s:%s' % (bucket_name,file_name))
-    fops = fops+'|saveas/'+saveas_key
-    
-#    pfop = PersistentFop(auth, bucket_name, pipeline)
-    pfop = PersistentFop(auth, bucket_name)
-    ops = []
-    ops.append(fops)
-    ret, info = pfop.execute(key, ops, 1)
-    print(info)
-    assert ret['persistentId'] is not None
+    try:
+        key = url.split('/')[-1]
+        auth = Auth(access_key, secret_key)
+        
+        #截图使用的队列名称。
+        pipeline = 'mpsdemo'
+        
+        #要进行的截图操作。
+        fops = 'vframe/jpg/offset/1/w/480/h/360/rotate/90'
+        
+        #可以对截取后的图片进行使用saveas参数自定义命名，当然也可以不指定文件会默认命名并保存在当前空间
+        file_name = key.split('.')[0] + '.jpg'
+        saveas_key = urlsafe_base64_encode('%s:%s' % (bucket_name,file_name))
+        fops = fops+'|saveas/'+saveas_key
+        
+#        pfop = PersistentFop(auth, bucket_name, pipeline)
+        pfop = PersistentFop(auth, bucket_name)
+        ops = []
+        ops.append(fops)
+        ret, info = pfop.execute(key, ops, 1)
+        print(info)
+        assert ret['persistentId'] is not None
+    except:
+        return None
     return urljoin(bucket_domain, file_name)
 
 
@@ -315,13 +354,10 @@ def bankcard_check(data):
     print(response.text)
     return response.json()
 if __name__ == "__main__":
-#    del_uploaded('citykingfile.jpg')
+    del_uploaded('3c21ac0c-ea28-11e7-b32f-9cf387d3f78e.jpg')
 #    get_uploaded('citykingfile.jpg')
 #    is_img_or_video('http://cdn.hopyun.com/48686626-e0a3-11e7-92b5-9cf387d3f78e.MOV')
-    file_name = get_screenshot('c8d06918-e0a4-11e7-8b93-9cf387d3f78e.MOV')
-    import pdb
-    pdb.set_trace()
-    pass
+#    file_name = get_screenshot('c8d06918-e0a4-11e7-8b93-9cf387d3f78e.MOV')
 #    file_name = '/Users/cityking/WechatIMG24.jpeg'
 #    with open(file_name, 'rb') as data:
 #        print(data.name)

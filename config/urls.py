@@ -23,7 +23,7 @@ from crowdy_funding.personal_center.views import *
 #from crowdy_funding.project_content.views import item_initiate, item_detail, item_list, item_bref_detail, operate, update_item,index, get_item_type, filter_items, get_item_comments, item_management, get_payback_detail
 from crowdy_funding.project_content.views import * 
 from admin_project.views import *
-from weixin_connector.views import check_webchat, get_webchat_info
+from weixin_connector.views import check_webchat, get_webchat_info, get_user_by_identity, get_verification_data 
 
 #router = routers.DefaultRouter()
 #router.register(r'users', UserViewSet)
@@ -39,11 +39,15 @@ urlpatterns = [
 
     #微信接口
     url(r'^check_webchat', check_webchat),
-    url(r'^get_webchat_info', get_webchat_info),
+#    url(r'^get_webchat_info', get_webchat_info),
+    url(r'^crowdy/get_webchat_info', get_webchat_info),
+    url(r'^crowdy/get_user_by_identity', get_user_by_identity),
+    url(r'^crowdy/get_verification_data', get_verification_data),
     #注册
     url(r'^personal_center/register', register),
     #登录
-    url(r'^personal_center/login', user_login),
+    url(r'^personal_center/login/?$', user_login),
+    url(r'^personal_center/login_by_code', user_login_by_code),
     #修改密码
     url(r'^personal_center/update_password', update_user_password),
     #获取用户信息
@@ -73,6 +77,10 @@ urlpatterns = [
     url(r'^personal_center/get_initiate_items', get_initiate_items),
     #获取用户支持的项目
     url(r'^personal_center/get_support_items', get_support_items),
+    #获取用户支持订单列表
+    url(r'^personal_center/get_user_orders', get_user_orders),
+    #删除用户订单
+    url(r'^personal_center/delete_support_order', delete_support_order),
 
 
     #收藏
@@ -97,7 +105,10 @@ urlpatterns = [
     url(r'personal_center/get_bindcards', get_bindcards),
     #解绑银行卡
     url(r'personal_center/unbind_bindcard', unbind_bindcard),
-
+    #检查手机号是否被绑定
+    url(r'personal_center/judge_phone_bind', judge_phone_bind),
+    #检查手机号是否被绑定
+    url(r'personal_center/bind_phone', bind_phone),
 
 
     #项目发起/发起的项目
@@ -117,6 +128,9 @@ urlpatterns = [
 
     #获取轮播列表
     url(r'^item/get_carousel_list', get_carousel),
+
+    #获取项目回报列表-pc端
+    url(r'^item/get_pc_paybacks', get_pc_paybacks),
 
 
     #项目管理
@@ -225,4 +239,16 @@ urlpatterns = [
     url(r'^admin/get_trade_records', get_trade_records),
     #更改提现状态
     url(r'^admin/update_cash_status', update_cash_status),
+    #添加推荐
+    url(r'^admin/add_recommand', add_recommand),
+    #取消推荐
+    url(r'^admin/cancel_recommand', cancel_recommand),
+
+    #上传文件
+    url(r'^item/upload_file', upload_media_file),
+    #获取upload_token
+    url(r'^item/get_token', get_token),
+    #获取项目数量统计
+    url(r'^item/counts', get_counts),
+    
 ]

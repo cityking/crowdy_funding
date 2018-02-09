@@ -134,6 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 CRONJOBS = [
     ('0 0 * * *', 'crowdy_funding.project_content.crontab.tasks','>>crontab.log'),
     ('0 0 * * *', 'crowdy_funding.project_content.crontab.update_score','>>crontab.log')
@@ -153,8 +154,5 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'x_requested_with',
     'x-file-name',
-    'field',
-    '0',
-    'field 0',
 )
 

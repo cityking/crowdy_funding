@@ -1,5 +1,5 @@
 from django.db import models
-from config.tool import trans_to_localtime, ndays_time, del_uploaded, is_img_or_video, get_screenshot
+from config.tool import trans_to_localtime, ndays_time, del_uploaded, is_img_or_video, get_screenshot,log_exception
 from crowdy_funding.personal_center.models import MyUser, Order, UserConsignee
 from django.conf import settings
 import json
@@ -54,8 +54,6 @@ class ItemType(models.Model):
         type_log = data.get('type_log')
         item_type = cls.objects.create(type_name=type_name, type_log=type_log)
         return item_type
-
-
 class ItemInfo(models.Model):
     type_choices = (('1','爱心救助'),('2','公益众筹'),('3', '梦想众筹'))
     status_choices = (('0','审核中'),('1','进行中'),('2', '审核未通过'), ('3', '已完成'), ('4', '已停止'))
@@ -68,6 +66,7 @@ class ItemInfo(models.Model):
     objective_money = models.FloatField(default=0,verbose_name='目标金额')
     currency = models.CharField(max_length=5, choices=currency_choices, verbose_name='币种')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='发起时间')
+    examination_time = models.DateTimeField(null=True, verbose_name='发起时间')
     total_time = models.IntegerField(default=0,verbose_name='项目时间')
     left_time = models.IntegerField(default=0,verbose_name='剩余时间')
     item_content = models.TextField(max_length=1000, verbose_name='项目内容')
@@ -84,7 +83,8 @@ class ItemInfo(models.Model):
 
     def __str__(self):
         return self.item_name
-
+    def get_end_time(self):
+        return ndays_time(self.get_left_time()).strftime('%Y-%m-%d')
     def delete_item(self):
         medias = eval(self.medias)
         for url in medias:
@@ -92,6 +92,50 @@ class ItemInfo(models.Model):
             del_uploaded(key)
         self.delete()
 
+    def get_funding_money(self):
+        return float('%.2f' % self.funding_money)
+    def get_objective_money(self):
+        return float('%.2f' % self.objective_money)
+
+
+    def add_recommand(self):
+        if self.examination_status == '1':
+            self.recommand = '1'
+            self.save()
+        return self.examination_status
+    def cancel_recommand(self):
+        self.recommand = '0'
+        self.save()
+
+    def get_media_url(self):
+        media_url = eval(self.medias)
+        if not is_img_or_video(media_url[0])['is_img']:
+            for url in media_url:
+                if is_img_or_video(url)['is_img']:
+                    index = media_url.index(url)
+                    media_url[index] = media_url[0]
+                    media_url[0] = url
+                    break
+            else:
+                url = get_screenshot(media_url[0])
+                if url:
+                    media_url.append(media_url[0])
+                    media_url[0] = url
+        self.medias = str(media_url)
+        self.save() 
+        return media_url 
+       
+
+    def get_left_time(self):
+        if self.examination_time:
+            examination_time = trans_to_localtime(self.examination_time).date()
+            now = datetime.datetime.now().date()
+            left_time = self.total_time - (now-examination_time).days
+            if left_time < 0:
+                left_time = 0
+        else:
+            left_time = self.total_time
+        return left_time
 
     def get_item_dict(self):
         schedule = '%.2f' % float(self.funding_money/self.objective_money)
@@ -106,41 +150,34 @@ class ItemInfo(models.Model):
         item_type = self.item_type
         type_id = item_type.id
 
-        
-        media_url = eval(self.medias)
-        if not is_img_or_video(media_url[0])['is_img']:
-            for url in media_url:
-                if is_img_or_video(url)['is_img']:
-                    index = media_url.index[url]
-                    media_url[index] = media_url[0]
-                    media_url[0] = url
-                    break
-            else:
-                url = get_screenshot(media_url[0])
-                media_url.append(media_url[0])
-                media_url[0] = url
-                
-        self.medias = str(media_url)
-        self.save() 
-            
-        
+        create_time = trans_to_localtime(self.create_time)
+        create_time = create_time.strftime('%Y-%m-%d %H:%M:%S')
+
+
+        left_time = self.get_left_time() 
+           
+        media_url = self.get_media_url()
 #        import re
 #        if not re.match('\[.*\]$', media_url):
 #            media_url = '["%s"]' % media_url
         item_list = {'item_id':self.id,
             'avatar':user.avatar_url,
             'nickname':user.nick_name,
+            'about_me':user.about_me,
             'examination_status':self.examination_status, 
             'item_name':self.item_name, 
             'item_content': self.item_content,
             'item_type':str(self.item_type),
             'type_id':type_id,
-            'funding_money':self.funding_money,
+            'funding_money':self.get_funding_money(),
+            'objective_money':self.get_objective_money(),
+            'left_time':left_time,
+            'last_time':self.total_time,
             'support_users_count':support_count,
             'media_url':media_url,
             'schedule':schedule,
             'currency':self.currency,
-            'create_time':self.create_time,
+            'create_time':create_time,
             }
 
         return item_list
@@ -162,8 +199,8 @@ class ItemInfo(models.Model):
 
     def get_item_detail(self, user):
         item_detail = self.get_item_dict()
-        item_detail['objective_money'] = self.objective_money
-        item_detail['left_time'] = self.left_time
+        item_detail['objective_money'] = self.get_objective_money()
+        item_detail['left_time'] = self.get_left_time()
         item_detail['fund_use'] = self.fund_use
 
         rebacks = PayBack.objects.filter(item=self)
@@ -174,7 +211,9 @@ class ItemInfo(models.Model):
             is_reback = '0'
         item_detail['is_reback'] = is_reback
         item_detail['reback'] = reback_list
-        item_detail['create_time'] = self.create_time 
+        create_time = trans_to_localtime(self.create_time)
+        create_time = create_time.strftime('%Y-%m-%d %H:%M:%S')
+        item_detail['create_time'] = create_time 
         order_list = Order.objects.filter(item_id=self.id).filter(trade_result='1').order_by('-trade_time')
         support_list = []
         for order in order_list:
@@ -207,16 +246,7 @@ class ItemInfo(models.Model):
 
         item_detail['collected'] = collected
         return item_detail
-    def get_manage_info(self):
-        objective_money = self.objective_money
-        funding_money = self.funding_money
-        support_users_count = self.support_users.all().count()
-        left_time = self.left_time
-        media_url = eval(self.medias)
-        item_name = self.item_name
-        item_content = self.item_content
-        currency = self.currency
-
+    def get_paybacks(self):
         order_list = Order.objects.filter(item_id=self.id).filter(trade_result='1').order_by('-trade_time')
         now_time = datetime.datetime.now()
         now_time = now_time.strftime('%Y-%m-%d')
@@ -225,14 +255,41 @@ class ItemInfo(models.Model):
         for order in today_orders:
             today_money += order.support_money
         payback_orders = order_list.filter(payback='1') 
+        return payback_orders
+
+    def get_payback_list(self):
         payback_list = []
+        payback_orders = self.get_paybacks()
         for order in payback_orders:
             try:
                 payback = UserPayBack.objects.filter(delete_status='0').get(order=order)
                 payback_list.append(payback.get_bref_info())
             except:
                 continue
-            
+        return payback_list
+
+    def get_payback_details(self):
+        payback_list = []
+        payback_orders = self.get_paybacks()
+        for order in payback_orders:
+            try:
+                payback = UserPayBack.objects.filter(delete_status='0').get(order=order)
+                payback_list.append(payback.get_info())
+            except:
+                continue
+        return payback_list
+
+    def get_manage_info(self):
+        objective_money = self.get_objective_money()
+        funding_money = self.get_funding_money()
+        support_users_count = self.support_users.all().count()
+        left_time = self.get_left_time()
+        media_url = eval(self.medias)
+        item_name = self.item_name
+        item_content = self.item_content
+        currency = self.currency
+
+        payback_list = self.get_payback_list() 
 
         data = dict(objective_money=objective_money,
                 funding_money=funding_money,
@@ -251,13 +308,21 @@ class ItemInfo(models.Model):
         create_time = trans_to_localtime(self.create_time)
         create_time = create_time.strftime('%Y-%m-%d %H:%M:%S')
 
-        schedule = self.funding_money/self.objective_money
+        schedule = float('%.2f' % (self.funding_money/self.objective_money))
         if schedule >= 1:
             schedule = 1
         news = self.get_item_latest_support()
         thumbs = Thumb_up.objects.filter(item=self).count()
         rebacks = PayBack.objects.filter(item=self)
         reback_list = [{'reback_money':reback.money, 'reback_content':reback.content} for reback in rebacks]
+
+        if self.examination_time:
+            examination_time = trans_to_localtime(self.examination_time)
+            examination_time = examination_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            examination_time = None
+
+
         if reback_list:
             is_reback = '1'
         else:
@@ -272,15 +337,16 @@ class ItemInfo(models.Model):
             'create_time': create_time,
             'nickname':self.initiator.nick_name,
             'examination_status':self.examination_status, 
+            'examination_time':examination_time,
             'item_name':self.item_name, 
             'item_content': self.item_content,
             'fund_use': self.fund_use,
-            'funding_money':self.funding_money,
-            'objective_money':self.objective_money,
+            'funding_money':self.get_funding_money(),
+            'objective_money':self.get_objective_money(),
             'support_users_count':self.support_users.count(),
             'schedule':schedule,
             'currency':self.currency,
-            'left_time':self.left_time,
+            'left_time':self.get_left_time(),
             'last_time':self.total_time,
             'media_url':eval(media_url),
             'mobile':self.initiator.mobile,
@@ -335,21 +401,9 @@ class ItemInfo(models.Model):
             if item_content:
                 self.item_content = item_content
             is_reback = data.get('is_reback')
-            urls = data.get('media_url', '')
-            import re
-            if re.match('\[.*\]',urls):
-                media_url = []
-                if urls:
-                    urls = eval(urls)
-                    print(urls)
-                    for url in urls:
-                        if bucket_domain not in url:
-                            url = urljoin(bucket_domain, url)
-                        media_url.append(url)
-                        
-                media_url = str(media_url)            
-            else:
-                media_url = urljoin(bucket_domain, urls)
+            media_url = data.get('media_url', '')
+            if type(media_url) != type(''):
+                media_url = str(media_url)
             if media_url:
                 old_medias = eval(self.medias)
                 for url in old_medias:
@@ -368,23 +422,22 @@ class ItemInfo(models.Model):
                     self.left_time = left_time
            # currency = data.get('currency')
             self.currency = 'CNY'
-            if is_reback == '1':
+            if str(is_reback) == '1':
                 paybacks = PayBack.objects.filter(item=self)
                 if paybacks:
                     paybacks.delete()
-
                 rebacks = data.get('reback')
 
-                rebacks = json.loads(rebacks)
                 for reback in rebacks:
                     payback = PayBack.objects.create(money=reback['reback_money'], content=reback['reback_content'], item=self)
                     payback.save()
-            elif is_reback == '0':
+            elif str(is_reback) == '0':
                 paybacks = PayBack.objects.filter(item=self)
                 if paybacks:
                     paybacks.delete()
             self.save()
         except Exception:
+            log_exception() 
             return None
         return self 
 
@@ -392,7 +445,9 @@ class ItemInfo(models.Model):
     @classmethod
     def create(cls, data, user): 
         try:
+
             print(data)
+            item = None
             item_type = data.get('item_type')    
             item_type = ItemType.objects.get(id=item_type)
             objective_money = data.get('objective_money')
@@ -400,6 +455,8 @@ class ItemInfo(models.Model):
             item_content = data.get('item_content') 
             is_reback = data.get('is_reback')
             urls = data.get('media_url', '')
+            if type(urls) != type(''):
+                urls = str(urls)
             import re
             if re.match('\[.*\]',urls):
                 media_url = []
@@ -429,18 +486,23 @@ class ItemInfo(models.Model):
                             fund_use=fund_use,
                             medias=media_url)
             item.save()
-            if is_reback == '1':
-                rebacks = data.get('reback')
-                rebacks = json.loads(rebacks)
-                for reback in rebacks:
-                    payback = PayBack.objects.create(money=reback['reback_money'], content=reback['reback_content'], item=item)
-                    payback.save()
+            if str(is_reback) == '1':
+                try:
+                    rebacks = data.get('reback')
+                    if type(rebacks) != type([]):
+                        rebacks = json.loads(rebacks)
+
+                    for reback in rebacks:
+                        payback = PayBack.objects.create(money=reback['reback_money'], content=reback['reback_content'], item=item)
+                        payback.save()
+                except:
+                   item.delete()
+                   return 'reback_err' 
         except Exception:
+            if item:
+                item.delete()
             return None
         return item
-
-    
-
 class PayBack(models.Model):
     money = models.FloatField(default=0,verbose_name='回报金额')
     content = models.CharField(max_length=20, verbose_name='回报内容')
@@ -509,8 +571,14 @@ class UserPayBack(models.Model):
         consignee_address = consignee.consignee_address
 
         content = self.payback.content
-        is_delivery = self.payback.is_delivery
+        if self.delivery_id:
+            is_delivery = '1'
+        else:
+            is_delivery = '0'
         return dict(avatar=avatar,
+                delivery_company = self.delivery_company,
+                delivery_id = self.delivery_id,
+                status = self.status,
                 nick_name=nick_name,
                 support_money=support_money,
                 consignee_name=consignee_name,
@@ -533,7 +601,7 @@ class UserPayBack(models.Model):
         item_name = item.item_name
         content = self.payback.content
         number = 1
-        end_time = trans_to_localtime(ndays_time(int(item.left_time))).strftime('%Y-%m-%d %H:%M:%S')
+        end_time = trans_to_localtime(ndays_time(int(item.get_left_time()))).strftime('%Y-%m-%d %H:%M:%S')
         
         return dict(payback_id = self.id,
                 delivery_status=delivery_status,
@@ -552,9 +620,16 @@ class UserPayBack(models.Model):
         nick_name = user.nick_name
         avatar = user.avatar_url
 
+        if self.delivery_id:
+            is_delivery = '1'
+        else:
+            is_delivery = '0'
+
         data = dict(delivery_company = self.delivery_company,
+            status = self.status,
             nick_name=nick_name,
             avatar = avatar,
+            is_delivery = is_delivery,
             delivery_id = self.delivery_id,
             consignee_name = consignee.consignee_name,
             consignee_phone = consignee.consignee_phone,
@@ -591,11 +666,19 @@ def get_user_item(user, status='0'):
     return item_list 
 
 def get_user_support_items(user):
-    all_items = ItemInfo.objects.all().filter(examination_status='1')
+    orders = Order.objects.filter(user=user).order_by('-trade_time')
+    all_items = [] 
+    for order in orders:
+        items = ItemInfo.objects.filter(id=order.item_id)
+        for item in items:
+            if item.examination_status == '1':
+                info = item.get_item_dict()
+                info['support_money'] = order.support_money
+                all_items.append(info)
     #all_items = ItemInfo.objects.filter(support_users__contains=user)
     #item = all_items[0]
-    user_items = [item.get_item_dict()  for item in all_items if user in item.support_users.all()]
-    return user_items
+    #user_items = [item.get_item_dict()  for item in all_items if user in item.support_users.all()]
+    return all_items
 
 def get_collections(user):
     items = ItemInfo.objects.all()
@@ -625,12 +708,24 @@ class Comment(models.Model):
         create_time = trans_to_localtime(self.create_time)
         create_time = create_time.strftime('%Y-%m-%d %H:%M:%S')
         sub_comments = Comment.objects.filter(up_comment=self)
+
+        support_user = self.order.user
+        support_user_id = support_user.id
+        
         comments = []
         for comment in sub_comments:
             comments.append(comment.get_info())
         
             
-        result = {'order_id':self.order.order_id, 'comment_id':self.id, 'avatar':user.avatar_url, 'nickname':user.nick_name, 'create_time':create_time, 'content':self.content, 'subcomments':comments}
+        result = {'order_id':self.order.order_id,
+            'item_id':self.item.id,
+            'support_user_id':support_user_id,
+            'comment_id':self.id,
+            'avatar':user.avatar_url, 
+            'nickname':user.nick_name, 
+            'create_time':create_time, 
+            'content':self.content, 
+            'subcomments':comments}
         
         return result 
     
@@ -691,12 +786,16 @@ class Report(models.Model):
 
     def get_info(self):
         create_time = trans_to_localtime(self.create_time).strftime('%Y-%m-%d %H:%M:%S')
+        if self.images:
+            images=eval(self.images)
+        else:
+            images = ''
         return dict(user_id=self.user.id,
                 nick_name=self.user.nick_name,
                 item_id=self.item.id,
                 item_name=self.item.item_name,
                 reason=self.reason,
-                images=eval(self.images),
+                images=images,
                 create_time=create_time)
 
 

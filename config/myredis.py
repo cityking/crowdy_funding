@@ -15,7 +15,7 @@ class MyRedis:
     def delete(self, key):        
         self.rds.delete(key)
     def expire(self, key, time):
-        self.rds.expire(key, 24*3600)
+        self.rds.expire(key, time)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,10 @@
 import requests
 import json
+import os, random, sys, requests
+from requests_toolbelt.multipart.encoder import MultipartEncoder
+
 identity = '5b4c20ff0980f9fdbef9bc0694506e97'
+base_url = 'http://192.168.123.100:8000'
 def get_user_info():
     data = {
         'unionid': 'oOtoNwlr6enlnJ7zoFZUAaniI2SA',
@@ -68,11 +72,17 @@ def update_password(code):
     print(response.json())
 
 def login():
-    url = 'http://192.168.3.59:8000/personal_center/login'
-    data = dict(identity='001UqvOg0cQAsy17RnKg08dvOg0UqvOt')
+    url = '%s/personal_center/login' % base_url
+    data = dict(identity='011ZkoOI0NiS9i2LNaOI0mA9OI0ZkoOy')
 #    data = dict(mobile='18321339272', password='ct989016') 
     response = requests.post(url, json=data)
     print(response.json())
+def login_by_code():
+    url = '%s/personal_center/login_by_code' % base_url
+    data = dict(phone='18221339272', code='3864') 
+    response = requests.post(url, json=data)
+    print(response.json())
+
 def admin_login():
     url = 'http://192.168.3.59:8000/item/admin_login'
     data = dict(nick_name='cityking', password='123456') 
@@ -142,7 +152,25 @@ def update_item_status():
     }
     response = requests.post(url, json=data)
     print(response.json())
-
+def upload_file(file_name):
+    url = 'http://192.168.123.186:8000/item/upload_file'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:50.0) Gecko/20100101 Firefox/50.0',
+        'Referer': url
+        }
+    multipart_encoder = MultipartEncoder(
+        fields={
+            'files': (os.path.basename(file_name) , open(file_name, 'rb'), 'application/octet-stream')
+            #file为路径
+            },
+            boundary='-----------------------------' + str(random.randint(1e28, 1e29 - 1))
+        )
+    
+    headers['Content-Type'] = multipart_encoder.content_type
+    #请求头必须包含一个特殊的头信息，类似于Content-Type: multipart/form-data; boundary=${bound}
+    
+    r = requests.post(url, data=multipart_encoder, headers=headers)
+    print(r.text)
 def support_item():
     url = 'http://192.168.3.59:8000/personal_center/support_item'
     data = {
@@ -206,7 +234,8 @@ def admin_update_item():
 #report()
 #cetification()
 #update_user_info()
-login()
+#login()
+login_by_code()
 #collect()
 #register('8413')
 #update_password('3820')
@@ -221,3 +250,4 @@ login()
 #delete_announce()
 #delete_item_type()
 #admin_update_item()
+#upload_file('mm.jpg')

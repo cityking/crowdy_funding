@@ -29,9 +29,9 @@ class Bank(models.Model):
         return banks
 
 class BankCardInfo(models.Model):
-    #bank = models.CharField(max_length=50, verbose_name='银行')
-    bank = models.ForeignKey(Bank,models.SET_NULL,blank=True, null=True,verbose_name='银行')
-    card_no = models.CharField(max_length=19, verbose_name='卡号')
+    bank = models.CharField(max_length=50, verbose_name='银行')
+#    bank = models.ForeignKey(Bank,models.SET_NULL,blank=True, null=True,verbose_name='银行')
+    card_no = models.CharField(max_length=19, unique=True, verbose_name='卡号')
     name = models.CharField(max_length=20, verbose_name='姓名')
     id_no = models.CharField(max_length=32, verbose_name='身份证号')
     phone = models.CharField(max_length=32, verbose_name='手机号码')
@@ -45,15 +45,15 @@ class BankCardInfo(models.Model):
 
     def get_info(self):
         return dict(bankcardinfo_id=self.id,
-                bank_name=self.bank.name,
-                bank_log = self.bank.log,
+                bank_name=self.bank,
+#                bank_log = self.bank.log,
                 card_no=self.card_no,
                 name=self.name,
                 id_no=self.id_no,
                 phone=self.phone)
     @classmethod
     def create(cls, data):
-        bank = data.get('bank')
+        bank = data.get('bank_name')
         card_no = data.get('card_no')
         name = data.get('name')
         id_no = data.get('id_no')
@@ -64,9 +64,6 @@ class BankCardInfo(models.Model):
                 id_no=id_no,
                 phone=phone)
         return bankcard
-
-
- 
 
 SEX_CHOICES = (
     ('0', '男'),
@@ -100,6 +97,7 @@ class MyUser(models.Model):
     state = models.IntegerField(default=0, verbose_name='0:开启；1：禁用')
     certification = models.CharField(max_length=2, choices=certification_choices, default='0', verbose_name='实名认证') #0未认证 1已认证
     banks = models.ManyToManyField(BankCardInfo, verbose_name='银行卡')
+    birthday = models.CharField(max_length=64, null=True, verbose_name='生日')
 
     #default_consignee = models.
 
@@ -119,7 +117,8 @@ class MyUser(models.Model):
         create_time = trans_to_localtime(create_time).strftime('%Y-%m-%d %H:%M:%S')
         state = self.state
         user_id = self.id
-        return dict(user_id=user_id,
+        return dict(phone=self.mobile,
+                user_id=user_id,
                 nick_name=nick_name,
                 mobile=mobile,
                 real_name=real_name,
@@ -138,7 +137,11 @@ class MyUser(models.Model):
             address = consignee[0].consignee_region
         else:
             address = 'none'
-        info = dict(avatar_url=avatar_url,
+        info = dict(phone=self.mobile,
+                user_id = self.id,
+                sex = self.sex,
+                birthday = self.birthday,
+                avatar_url=avatar_url,
                 nick_name=nick_name,
                 about_me=about_me,
                 certification=certification,
@@ -182,8 +185,8 @@ class MyUser(models.Model):
             ranks = MyUser.objects.filter(day_score__gt=0).order_by('-day_score')
         users = [user for user in ranks]
         rank_list = [user.get_score_info(rank_type) for user in ranks]
-        if not rank_list:
-            return 'none'
+#        if not rank_list:
+#            return 'none'
         rank = 1
         for info in rank_list:
             info['rank'] = rank
@@ -203,7 +206,10 @@ class MyUser(models.Model):
                 rank_score = 0
         else:
             rank = 0
-            rank_score = ranks[-1]['score']
+            if ranks:
+                rank_score = ranks[-1]['score']
+            else:
+                rank_score = 1
         user_info = self.get_score_info(rank_type)
         user_info.update(dict(rank=rank, rank_score=rank_score))
         data = {'user_info':user_info, 'ranks':ranks}
@@ -219,7 +225,7 @@ class MyUser(models.Model):
     @classmethod
     def get_user_by_identity(cls, identity):
         redis = MyRedis()
-        key = 'identity' + identity
+        key = 'identity_user' + identity
         user_id = redis.get(key) 
         if user_id:
             user = cls.objects.get(id=user_id)
@@ -233,7 +239,7 @@ class MyUser(models.Model):
     @classmethod
     def create_weixin_login(cls, data):
         address = "%s %s %s" % (data['country'], data['province'], data['city'])
-        if data['sex'] == '1':
+        if data['sex'] == 1:
             sex='男'
         else:
             sex='女'
@@ -254,6 +260,8 @@ class MyUser(models.Model):
             return '1'
         if user:
             user = user[0]
+            if user.state==1:
+                return '2'
             password = make_password(password)
             if user.password and password == user.password:
                 identity = make_identity(mobile, user)
@@ -262,10 +270,60 @@ class MyUser(models.Model):
                 return '0'
         else:
              return '1'
+    @classmethod
+    def create_code_login(cls, mobile):
+        if mobile:
+            user = cls.objects.filter(mobile=mobile)
+        else:
+            return '1'
+        if user:
+            user = user[0]
+            if user.state==1:
+                return '2'
+            else:
+                identity = make_identity(mobile, user)
+                return identity
+        else:
+             return '1'
+
     def get_banks_list(self):
         banks = self.banks.all()
         banks = [bank.get_info() for bank in banks]
         return banks
+    @classmethod
+    def combine(cls, user, phone_user, combine_type):
+        phone_user.unionid = user.unionid
+        phone_user.openid = user.openid
+        phone_user.balance += user.balance
+        if not phone_user.about_me:
+            phone_user.about_me = user.about_me
+        else:
+            if user.about_me and combine_type == 'webchat':
+                phone_user.about_me = user.about_me
+                
+        if not phone_user.avatar_url or combine_type == 'webchat':
+            phone_user.avatar_url = avatar_url
+                
+        if phone_user.nick_name == phone_user.mobile or combine_type == 'webchat':
+            phone_user.nick_name = user.nick_name
+        if not phone_user.real_name:
+            phone_user.real_name = user.real_name
+        if not phone_user.sex or combine_type == 'webchat':
+            phone_user.sex = user.sex
+        if not phone_user.age or combine_type == 'webchat':
+            phone_user.age = user.age
+        if not phone_user.id_card:
+            phone_user.id_card = user.id_card
+        if not phone_user.address or combine_type == 'webchat':
+            phone_user.address = user.address
+        if user.certification == '1' and phone_user.certification=='0':
+            phone_user.certification = '1'
+            phone_user.real_name = user.real_name
+            phone_user.id_card = user.id_card
+        user.delete()
+        phone_user.save()
+        return phone_user
+             
 
 class UserConsignee(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE,verbose_name='用户')
@@ -329,11 +387,12 @@ class Order(models.Model):
     trade_time = models.DateTimeField(auto_now_add=True, verbose_name='交易时间')
     trade_method = models.CharField(max_length=1, choices=methods, default='1', verbose_name='交易方式')
     trade_result = models.CharField(max_length=1, choices=results, default='0', verbose_name='交易结果')
-    payback = models.CharField(max_length=10, verbose_name='是否接收产品回报') # '0'不接受回报， '1'接受回报
+    payback = models.CharField(max_length=10, default='0',verbose_name='是否接收产品回报') # '0'不接受回报， '1'接受回报
     delivery_status = models.CharField(max_length=1, choices=delivery_choices, verbose_name='发货状态')
     consignee_name = models.CharField(max_length=20, null=True, blank=True, verbose_name='收货人姓名')
     consignee_phone = models.CharField(max_length=11, null=True, blank=True, verbose_name='收货人电话')
     consignee_address = models.CharField(max_length=50, null=True, blank=True, verbose_name='收货人地址')
+    status = models.CharField(max_length=50, default='normal', verbose_name='状态') #normal正常 deleted已删除
     class Meta:
         verbose_name = '订单'
         verbose_name_plural = verbose_name
@@ -344,9 +403,10 @@ class Order(models.Model):
         item_id = self.item_id
         support_money = self.support_money
         trade_time = trans_to_localtime(self.trade_time)
-        trade_time = trade_time.strftime('%Y-%m-%d %H:%M:%S')
+        trade_time = self.get_trade_time() 
         info = dict(order_id=order_id,
                 support_user=support_user.nick_name,
+                status=self.delivery_status,
                 item_id = item_id,
                 support_money=support_money,
                 trade_time=trade_time)
@@ -355,13 +415,23 @@ class Order(models.Model):
     def get_trade_time(self):
         return trans_to_localtime(self.trade_time).strftime('%Y-%m-%d %H:%M:%S')
 
-
-        
     @classmethod
     def get_list(cls):
-        orders = cls.objects.all()
+        orders = cls.objects.filter(status='normal').order_by('-trade_time')
         order_list = [order.get_bref_info() for order in orders]
         return order_list
+
+    def delete(self):
+        self.status = 'deleted'
+        self.save()
+
+    @classmethod
+    def get_user_orders(cls, user, status=None):
+        if status:
+            orders = cls.objects.filter(status='normal').filter(user=user).filter(delivery_status=status).order_by('-trade_time')
+        else:
+            orders = cls.objects.filter(status='normal').filter(user=user).order_by('-trade_time')
+        return orders
 
 
     @classmethod
@@ -370,7 +440,7 @@ class Order(models.Model):
         identity = data['identity']
         user = MyUser.get_user_by_identity(identity)
         support_money = data['support_money']
-        payback = data['payback']
+        payback = data.get('payback')
 #        trade_method = data['trade_method']
         item_id = data['item_id']
         order_id = str(datetime.datetime.now().strftime('%Y%m%d%H%M%s')) + str(user.id) + str(item_id)
@@ -380,9 +450,11 @@ class Order(models.Model):
                 user=user,
                 item_id=item_id, 
                 support_money=support_money, 
-                payback=payback,)
+                )
+        
 #                trade_method=trade_method)
         if payback == '1':
+            order.payback = payback
             order.consignee_name = data['consignee_name']
             order.consignee_phone = data['consignee_phone']
             order.consignee_address = data['consignee_address']
@@ -403,7 +475,7 @@ class TradeRecord(models.Model):
     balance = models.FloatField(default=0,verbose_name='交易金额')
     trade_type = models.CharField(max_length=20, null=True, blank=True, verbose_name='交易类型') #cash提现， charge充值
     trade_time = models.DateTimeField(auto_now_add=True, verbose_name='交易时间')
-    trade_status = models.CharField(max_length=20, default='wait_check', verbose_name='交易状态') #cashed已提现  cashing提现中 wait_check待审核
+    trade_status = models.CharField(max_length=20, default='wait_check', verbose_name='交易状态') #cashed已提现  cashing提现中 wait_check待审核 cash_fail提现失败
     bank = models.ForeignKey(BankCardInfo, on_delete=models.CASCADE,verbose_name='银行卡信息')
 
     def get_info(self):
@@ -444,7 +516,6 @@ class TradeRecord(models.Model):
         user.save()
         return record
 
-  
 class RedPacket(models.Model):
     status_choices = (('0','未使用'),('1', '已过期'),('2', '已使用'))
     use_status = models.CharField(max_length=1, choices=status_choices, verbose_name='使用状态')
@@ -455,4 +526,5 @@ class RedPacket(models.Model):
 
     def __str__(self):
         return self.money
+
 

@@ -13,6 +13,16 @@ from crowdy_funding.personal_center.models import MyUser, Order
 from crowdy_funding.personal_center.views import register
 from admin_project.models import Carousel
 
+def get_token(request):
+    if request.method == 'GET':
+        try:
+            token = get_upload_token()
+            content = dict(token=token, bucket_domain=bucket_domain) 
+            result = {'status':'200', 'message':'获取成功', 'content':content}
+        except:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False) 
 
 @csrf_exempt
 @authentication
@@ -20,63 +30,93 @@ def item_initiate(request):
     if request.method == 'POST':
         try: 
             data = request.POST.dict()
-
+            if not data:
+                data = request.body.decode()
+                data = json.loads(data)
             identity = data.get('identity')
-
-            try: 
-                images = []
-                files = request.FILES.getlist('img')
-                bucket_domain = 'http://cdn.hopyun.com/'
-                if files:
-                    for image in files:
-                        url = upload_file(image.file.read(), name=image.name)
-                        url = urljoin(bucket_domain, url)
-                        images.append(url)
-                data['media_url'] = str(images)
-            except Exception as e:
-                result = {'status':'400', 'message':'上传图片失败 %s' % str(e), 'content':'none'}
-                return JsonResponse(result, safe=False) 
             
             user = MyUser.get_user_by_identity(identity)
-
             items = ItemInfo.objects.filter(initiator=user).exclude(examination_status='3').exclude(examination_status='4').exclude(examination_status='2')
             if items:
                 result = {'status':'400', 'message':'该用户已发起过项目', 'content':'none'}
                 return JsonResponse(result, safe=False) 
+
+
+#            try: 
+#                images = []
+#                files = request.FILES.getlist('img')
+#                bucket_domain = 'http://cdn.hopyun.com/'
+#                if files:
+#                    
+#                    for image in files:
+#                        url = upload_file(image.file.read(), name=image.name)
+#                        url = urljoin(bucket_domain, url)
+#                        images.append(url)
+#                data['media_url'] = str(images)
+#            except Exception as e:
+#                log_exception()
+#                result = {'status':'400', 'message':'上传图片失败', 'content':'none'}
+#                return JsonResponse(result, safe=False) 
             item = ItemInfo.create(data, user)
             if item:
-                result = {'status':'200', 'message':'项目发起成功', 'content':'none'} 
+                if item == 'reback_err':
+                    result = {'status':'400', 'message':'回报信息错误', 'content':'none'}
+                else:
+                    result = {'status':'200', 'message':'项目发起成功', 'content':'none'} 
             else:
                 result = {'status':'400', 'message':'项目发起失败', 'content':'none'}
         except Exception as e:
-            print(e)
+            log_exception() 
             result = {'status':'400', 'message':'项目发起失败', 'content':'none'}
         print(result) 
         return JsonResponse(result, safe=False) 
+
+@csrf_exempt
+def upload_media_file(request):
+    if request.method == 'POST':
+        try: 
+            files = request.FILES.getlist('files')
+            bucket_domain = 'http://cdn.hopyun.com/'
+            urls = []
+            if files:
+                for _file in files:
+                    url = upload_file(_file.file.read(), name=_file.name)
+                    url = urljoin(bucket_domain, url)
+                    urls.append(url)
+                if urls:
+                    result = {'status':'200', 'message':'上传成功', 'content':urls} 
+                else:
+                    result = {'status':'400', 'message':'上传失败，请重新上传', 'content':'none'}
+            else:
+                result = {'status':'400', 'message':'未收到上传数据', 'content':'none'}
+        
+        except Exception as e:
+            log_exception() 
+            result = {'status':'400', 'message':'上传失败', 'content':'none'}
+        print(result) 
+        return JsonResponse(result, safe=False) 
+
 @csrf_exempt
 @authentication
 def item_update(request):
     if request.method == 'POST':
         try:
-            data = request.POST.dict()
-            item_id = request.POST.get('item_id')
+            data = request.body.decode()
+            data = json.loads(data)
+
+            identity = data.get('identity')
+            user = MyUser.get_user_by_identity(identity)
+            item_id = data.get('item_id')
             item = ItemInfo.objects.get(id=item_id)
+            if item.initiator != user:
+                result = {'status':'400', 'message':'您不是项目发起者，不能修改', 'content':'none'}
+                print(result)
+                return JsonResponse(result, safe=False)
 
-            images = request.POST.get('ori_img')
-            if not images:
-                images = []
-            else:
-                images = eval(images)
 
-            files = request.FILES.getlist('img')
-            bucket_domain = 'http://cdn.hopyun.com/'
-            if files:
-                for _file in files:
-                    url = upload_file(_file.file.read(), name=_file.name)
-                    url = urljoin(bucket_domain, url)
-                    print(url)
-                    images.append(url)
-            data['media_url'] = str(images)
+            media_url = request.POST.get('media_url')
+            if media_url:
+                data['media_url'] = str(media_url)
             data['examination_status'] = '0'
 
             item = item.update(data)
@@ -85,8 +125,8 @@ def item_update(request):
             else:
                 result = {'status':'200', 'message':'success', 'content':'none'}
         except Exception as e:
-            print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
 
         print(result)
         return JsonResponse(result, safe=False)
@@ -106,7 +146,8 @@ def item_detail(request):
                 #user = MyUser.objects.get(openid=identity)
                 user = MyUser.get_user_by_identity(identity)
             except Exception as e:
-                result = {'status':'400', 'message':'获取用户失败 %s' % str(e), 'content':'none'} 
+                log_exception()
+                result = {'status':'400', 'message':'获取用户失败', 'content':'none'} 
                 return JsonResponse(result, safe=False)
 
             details = item.get_item_detail(user)
@@ -121,7 +162,8 @@ def item_detail(request):
             
             result = {'status':'200', 'message':'success', 'content':details} 
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'} 
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'} 
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -143,7 +185,8 @@ def item_management(request):
             else:
                 result = {'status':'400', 'message':'项目不存在', 'content':'none'} 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'} 
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'} 
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -156,7 +199,8 @@ def get_payback_detail(request):
             info = payback.get_info()
             result = {'status':'200', 'message':'success', 'content':info} 
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -181,7 +225,8 @@ def payback_commit(request):
 
             result = {'status':'200', 'message':'回报成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message': str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message': '', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 def get_item_comments(request):
@@ -210,8 +255,9 @@ def index(request):
             
             result = {'status':'200', 'message':'success', 'content':item_list, 'length':len(item_list)}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -222,7 +268,8 @@ def get_item_type(request):
             type_list = [t.get_dict() for t in types]
             result = {'status':'200', 'message':'success', 'content':type_list}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
         
 def filter_items(request):
@@ -281,8 +328,9 @@ def filter_items(request):
             
             result = {'status':'200', 'message':'success', 'content':item_list, 'length':length}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -320,8 +368,9 @@ def operate(request):
             item.save()
             result = {'status':'200', 'message':'success', 'content':'none'} 
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'} 
+            result = {'status':'400', 'message':'', 'content':'none'} 
 
 
         return JsonResponse(result, safe=False)
@@ -339,7 +388,45 @@ def get_carousel(request):
             result = {'status':'200', 'message':'获取成功', 'content':carousel_list}
 
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False)
+def get_counts(request):
+    if request.method == 'GET':
+        try:
+            register_counts = MyUser.objects.count()
+            support_counts = Order.objects.count()
+            item_counts = ItemInfo.objects.count()
+            time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            content = dict(register_counts=register_counts,
+                        support_counts=support_counts,
+                        item_counts=item_counts,
+                        time=time)
+
+            result = {'status':'200', 'message':'获取成功', 'content':content}
+
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False)
+
+@pagination
+def get_pc_paybacks(request):
+    if request.method == 'GET':
+        try:
+            data = request.GET.dict()
+            item_id = data.get('item_id')
+            item = ItemInfo.objects.get(id=item_id)
+            if item:
+                payback_list = item.get_payback_details()
+                content = payback_list
+                result = {'status':'200', 'message':'获取成功', 'content':content}
+            else:
+                result = {'status':'400', 'message':'不存在此项目', 'content':'none'}
+
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 

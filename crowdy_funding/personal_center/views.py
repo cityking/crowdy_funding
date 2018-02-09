@@ -21,8 +21,7 @@ from config.myredis import MyRedis
 import json
 import urllib
 import requests
-# Create your views here.
-from config.tool import certificate, upload_file, authentication, make_password, make_identity, pagination, bankcard_check
+from config.tool import certificate, upload_file, authentication, make_password, make_identity, pagination, bankcard_check, log_exception
 from rest_framework import viewsets
 from config.PhoneNumberVerificator import PhoneNumberVerificator
 
@@ -30,7 +29,6 @@ def get_user_by_identity(identity):
     user_id = get_user_id_by_identity(identity)
     user = MyUser.objects.get(user_id=user_id)
     return user
-
 
 @csrf_exempt
 @authentication
@@ -42,6 +40,7 @@ def support_item(request):
             try:
                 data = json.loads(data)
             except Exception as e:
+                log_exception()
                 result = {'status':'400', 'message':'json数据解析错误 %s' % data, 'content':'none'}
                 return JsonResponse(result, safe=False)
 
@@ -55,8 +54,9 @@ def support_item(request):
             order = Order.create(data) 
             result = {'status':'200', 'message':'订单生成成功', 'content':'none'}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)        
         return JsonResponse(result, safe=False)
 
@@ -95,8 +95,9 @@ def support_item(request):
             
             result = {'status':'200', 'message':'success', 'content':content}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -111,7 +112,8 @@ def get_initiate_items(request):
             items = get_user_item(user, status)
             result = {'status':'200', 'message':'获取成功', 'content':items}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @authentication
@@ -124,11 +126,10 @@ def get_support_items(request):
             item_list = get_user_support_items(user)
             result = {'status':'200', 'message':'获取成功', 'content':item_list}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
-       
-        
 @authentication
 def score_rank(request):
     if request.method == 'GET':
@@ -141,7 +142,8 @@ def score_rank(request):
             content = user.get_rank(rank_type)
             result = {'status':'200', 'message':'success', 'content':content}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
            
@@ -156,7 +158,8 @@ def collection(request):
             collections = get_collections(user)      
             result = {'status':'200', 'message':'success', 'content':collections}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result) 
         return JsonResponse(result, safe=False)
     elif request.method == 'POST':
@@ -178,11 +181,10 @@ def collection(request):
             
              
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
-            
-
 
 @csrf_exempt
 @authentication
@@ -190,15 +192,21 @@ def collection(request):
 def comment(request):
     if request.method == 'GET':
         try:
+            identity = request.GET.get('identity')
+            user = MyUser.get_user_by_identity(identity)
+            user_id = user.id
             order_id = request.GET.get('order_id')
             order = Order.objects.get(order_id=order_id)
-            comments = Comment.objects.filter(order=order).filter(up_comment=None)
+            comments = Comment.objects.filter(order=order).filter(up_comment=None).order_by('-create_time')
             comments = [comment.get_info() for comment in comments]
+            for comment in comments:
+                comment['user_id'] = user_id
             
             result = {'status':'200', 'message':'success', 'content':comments}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result) 
         return JsonResponse(result, safe=False)
     elif request.method == 'POST':
@@ -228,8 +236,9 @@ def comment(request):
             
              
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 
@@ -244,8 +253,9 @@ def get_user_comment(request):
             
             result = {'status':'200', 'message':'success', 'content':comments}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail', 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result) 
         return JsonResponse(result, safe=False)
 
@@ -279,7 +289,8 @@ def thumb_up(request):
             
              
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
         
@@ -294,7 +305,9 @@ def get_consignee(request):
             consignees.sort(key=lambda x : x.get('consignee_default'), reverse=True) 
             result = {'status':'200', 'message':'success', 'content':consignees}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            log_exception()
+
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 @csrf_exempt
 @authentication
@@ -309,8 +322,9 @@ def add_consignee(request):
             consignee = UserConsignee.create(data)
             result = {'status':'200', 'message':'success', 'content':'none'}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @authentication
@@ -340,6 +354,7 @@ def operate_consignee(request):
                     default_consignee.consignee_default='0'
                     default_consignee.save()
                 except Exception as e:
+                    log_exception()
                     pass
                 consignee.consignee_default='1'
                 consignee.save()
@@ -351,7 +366,8 @@ def operate_consignee(request):
                 result = {'status':'400', 'message':'请传入正确的method', 'content':'none'}
 
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)            
         return JsonResponse(result, safe=False)
 @csrf_exempt
@@ -371,9 +387,12 @@ def update_consignee(request):
                 consignee = UserConsignee.objects.get(id=consignee_id)
                 consignee.update(data)
                 result = {'status':'200', 'message':'success', 'content':'none'}
+            else:
+                result = {'status':'400', 'message':'未传入consignee_id', 'content':'none'}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -388,6 +407,7 @@ def report(request):
                 user = MyUser.get_user_by_identity(identity)
                 data['user'] = user
             except Exception:
+                log_exception()
                 result = {'status':'400', 'message':'获取用户信息失败' , 'content':'none'}
                 return JsonResponse(result, safe=False)
                 
@@ -401,6 +421,7 @@ def report(request):
                     result = {'status':'400', 'message':'请传入item_id' , 'content':'none'}
                     return JsonResponse(result, safe=False)
             except Exception:
+                log_exception()
                 result = {'status':'400', 'message':'获取项目信息失败' , 'content':'none'}
                 return JsonResponse(result, safe=False)
 
@@ -423,8 +444,9 @@ def report(request):
             else:
                 result = {'status':'400', 'message':'举报失败', 'content':'none'}
         except Exception as e:
+            log_exception()
             print(e)
-            result = {'status':'400', 'message':'fail %s' % str(e), 'content':'none'}
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 def get_certification_code(request):
@@ -440,21 +462,27 @@ def get_certification_code(request):
             verificator=PhoneNumberVerificator()
             code = verificator.VerificationCode()
             if use == 'certification':
-                msg = "你正在进行众筹实名认证，验证码为%s, 5分钟失效" % code
+                msg = "【全球筹】您正在进行众筹实名认证，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
             elif use == 'password':
-                msg = "你正在进行密码修改，验证码为%s, 5分钟失效" % code
+                msg = "【全球筹】您正在进行密码修改，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
             elif use == 'register':
-                msg = "你正在进行注册，验证码为%s, 5分钟失效" % code
+                msg = "【全球筹】您正在进行注册，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
             elif use == 'bind':
-                msg = "你正在进行绑定银行卡，验证码为%s, 5分钟失效" % code
+                msg = "【全球筹】您正在进行绑定银行卡，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
+            elif use == 'bind_phone':
+                msg = "【全球筹】您正在进行绑定手机号，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
+            elif use == 'login':
+                msg = "【全球筹】您正在使用验证码登录，验证码是%s(5分钟内有效)，如非本人操作，请忽略本短信" % code
 
             if verificator.phonecheck(phone):
                 verificator.send(phone, msg)
                 verificator.writeCodeToRedis(code, phone, 300)
 
             result = {'status':'200', 'content':'none'}
+            print(result)
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -511,7 +539,8 @@ def register(request):
             user.save()
             result = {'status':'200', 'message':'注册成功,请返回登录', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
 @csrf_exempt
@@ -538,12 +567,10 @@ def update_user_password(request):
             user.save()
             result = {'status':'200', 'message':'修改成功, 请返回登录', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         print(result)
         return JsonResponse(result, safe=False)
-
-
-
         
 @authentication
 def get_user_info(request):
@@ -554,10 +581,71 @@ def get_user_info(request):
             info = user.get_info()
             result = {'status':'200', 'content':info}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         print(result)
         return JsonResponse(result, safe=False)
         
+@pagination
+@authentication
+def get_user_orders(request):
+    if request.method == 'GET':
+        try:
+            identity = request.GET.get('identity') 
+            user = MyUser.get_user_by_identity(identity)
+            status = request.GET.get('status')
+
+            orders = Order.get_user_orders(user, status)
+
+            order_list = []
+            for order in orders:
+                info = order.get_bref_info()
+                item_id = info.get('item_id')
+                item = ItemInfo.objects.get(id=item_id)
+                info['item_name'] = item.item_name
+                info['end_time'] = item.get_end_time()
+                info['media_url'] = item.get_media_url()
+                paybacks = UserPayBack.objects.filter(order=order)
+                if paybacks:
+                    info['is_payback'] = '1'
+                    payback = paybacks[0]
+                    info['payback_content']=payback.content
+                    if payback.status == '0':
+                        info['is_delivery'] = '0'
+                    else:
+                        if payback.delivery_no:
+                            info['is_delivery'] = '1'
+                            info['delivery_company'] = payback.delivery_company
+                            info['delivery_no'] = payback.delivery_no
+                        else:
+                            info['is_delivery'] = '0'
+
+                else:
+                    info['is_payback'] = '0'
+                order_list.append(info)
+
+                
+            result = {'status':'200', 'content':order_list}
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':''}
+        print(result)
+        return JsonResponse(result, safe=False)
+
+@authentication
+def delete_support_order(request):
+    if request.method=='GET': 
+        try:
+            order_id = request.GET.get('order_id')
+            order = Order.objects.get(order_id=order_id)
+            order.delete()
+            result = {'status':'200', 'message':'删除成功', 'content':'none'}
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':''}
+        return JsonResponse(result, safe=False)
+
+
 @csrf_exempt
 @authentication
 def update_user_info(request):
@@ -576,10 +664,17 @@ def update_user_info(request):
             address = data.get('address')
             if address:
                 user.address = address
+            sex = data.get('sex')
+            if sex:
+                user.sex = sex
+            birthday = data.get('birthday')
+            if birthday:
+                user.birthday = birthday
             user.save()
             result = {'status':'200', 'message':'修改成功'}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 @csrf_exempt
@@ -601,30 +696,32 @@ def update_user_avatar(request):
                         url = urljoin(bucket_domain, url)
                         user.avatar_url = url
             except Exception as e:
-                result = {'status':'400', 'message':'上传图片失败 %s' % str(e), 'content':'none'}
+                log_exception()
+                result = {'status':'400', 'message':'上传图片失败', 'content':'none'}
                 return JsonResponse(result, safe=False) 
 
             user.save()
             result = {'status':'200', 'message':'修改成功'}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 def webchat_login(identity):
-    url = "http://120.77.237.80/crowdy/get_user_by_identity?identity=%s" % identity
+    url = "http://cf.globalleague.cn/crowdy/get_user_by_identity?identity=%s" % identity
     response = requests.get(url).json()
     if response['status'] == '200':
         info = response['content']
-        openid = info['openid']
-        user = MyUser.objects.filter(openid=openid)
+        unionid = info['unionid']
+        user = MyUser.objects.filter(unionid=unionid)
         redis = MyRedis()
-        key = 'identity' + identity
+        key = 'identity_user' + identity
         if user:
             user = user[0]
         else:
             user = MyUser.create_weixin_login(info)
         redis.set(key, user.id)
-        redis.expire(key, 7200)
+        redis.expire(key, 3600*24)
         return user
     else:
         return None
@@ -637,10 +734,15 @@ def user_login(request):
             data = json.loads(data)
 
             identity = data.get('identity')
+
             if identity:
                 user = webchat_login(identity)        
                 if user:
-                    result = {'status':'200', 'message':'登录成功', 'content':data}
+                    if user.state==1:
+                        result = {'status':'401', 'message':'你的账号已被封停', 'content':'none'}
+                        return JsonResponse(result, safe=False)
+                    else:
+                        result = {'status':'200', 'message':'登录成功', 'content':data}
             else:
                 mobile = data.get('mobile')
                 password = data.get('password')
@@ -650,12 +752,39 @@ def user_login(request):
                     result = {'status':'400', 'message':'密码错误'}
                 elif identity == '1':
                     result = {'status':'400', 'message':'用户不存在'}
+                elif identity == '2':
+                    result = {'status':'401', 'message':'你的账号已被封停'}
                 else:
                     data = {'identity':identity}
                     result = {'status':'200', 'message':'登录成功', 'content':data}
                  
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
+        return JsonResponse(result, safe=False)
+@csrf_exempt
+def user_login_by_code(request):
+    if request.method == 'POST':
+        try:
+            data = request.body.decode()
+            data = json.loads(data)
+            phone = data.get('phone')
+            code = data.get('code')
+            verificator=PhoneNumberVerificator()
+            if not verificator.CheckVerificationCode(phone, code):
+                return JsonResponse({'status':'400', 'message':'验证码错误', 'content':'none'})
+            identity = MyUser.create_code_login(phone)
+            if identity == '1':
+                result = {'status':'400', 'message':'用户不存在'}
+            elif identity == '2':
+                result = {'status':'401', 'message':'你的账号已被封停'}
+            else:
+                data = {'identity':identity}
+                result = {'status':'200', 'message':'登录成功', 'content':data}
+                 
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 @authentication
@@ -668,7 +797,8 @@ def get_order_list(request):
             payback_list = UserPayBack.get_paybacks_by_user(user)
             result = {'status':'200', 'message':'获取成功', 'content':payback_list}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 @authentication
@@ -680,7 +810,8 @@ def get_order_detail(request):
             info = payback.get_order_detail()
             result = {'status':'200', 'message':'获取成功', 'content':info}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 @authentication
@@ -695,7 +826,8 @@ def delete_order(request):
             
             result = {'status':'200', 'message':'删除成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
 
 def get_bank_list(request):
@@ -704,7 +836,8 @@ def get_bank_list(request):
             bank_list = Bank.get_list() 
             result = {'status':'200', 'message':'获取成功', 'content':bank_list}
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         return JsonResponse(result, safe=False)
                 
 @csrf_exempt
@@ -716,18 +849,30 @@ def bind_bankcard(request):
         identity = data['identity']
         user = MyUser.get_user_by_identity(identity)
 
-        bank_id = data['bank_id']
-        bank = Bank.objects.get(id=bank_id)
-        data['bank'] = bank
+#        bank_id = data['bank_id']
+#        bank = Bank.objects.get(id=bank_id)
+
+#        data['bank'] = bank
 
         phone = data['phone']
+
+        card_no = data.get('card_no')
+        banks = user.banks.all().filter(card_no=card_no)
+        if banks:
+            result = {'status':'400', 'message':'该用户已绑定过该银行卡', 'content':'none'}
+            return JsonResponse(result, safe=False)
        
         #绑定
         response = bankcard_check(data)
         if response['code'] == 0:
-            bank = response['data']['bankname']
-            if bank in data['bank'].name:
-                bankcard = BankCardInfo.create(data)
+#            bank = response['data']['bankname']
+#            if bank in data['bank'].name:
+            if True:
+                bankcard = BankCardInfo.objects.filter(card_no=card_no)
+                if bankcard:
+                    bankcard = bankcard[0]
+                else:
+                    bankcard = BankCardInfo.create(data)
                 user.banks.add(bankcard)
                 user.save()
                 result = {'status':'200', 'message':'绑卡成功', 'content':'none'}
@@ -738,7 +883,6 @@ def bind_bankcard(request):
 
         return JsonResponse(result, safe=False)
 
-   
 @authentication
 def get_bindcards(request):
     if request.method=='GET':
@@ -748,7 +892,8 @@ def get_bindcards(request):
             banks = user.get_banks_list()
             result = {'status':'200', 'message':'获取成功', 'content':banks}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
         
 @authentication
@@ -766,7 +911,8 @@ def unbind_bindcard(request):
             
             result = {'status':'200', 'message':'解绑成功', 'content':'none'}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
             
 @authentication
@@ -779,7 +925,8 @@ def get_balance(request):
             content = dict(balance=balance)
             result = {'status':'200', 'message':'获取成功', 'content':content}
         except Exception as e:
-            result = {'status':'400', 'message':str(e), 'content':'none'}
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
         return JsonResponse(result, safe=False)
  
 @csrf_exempt
@@ -794,8 +941,61 @@ def apply_cash(request):
                 
                  
         except Exception as e:
-            result = {'status':'400', 'message':'fail %s' % str(e)}
+            log_exception()
+            result = {'status':'400', 'message':''}
         print(result)
         return JsonResponse(result, safe=False)
 
+def judge_phone_bind(request):
+     if request.method=='GET':
+        try:
+            phone = request.GET.get('phone')
+            user = MyUser.objects.filter(mobile=phone)
+            if user:
+                user = user[0]
+                if user.openid:
+                    is_bind = '1'
+                else:
+                    is_bind = '0'
+            else:
+                is_bind = '0'
+            content = dict(is_bind=is_bind)
+            result = {'status':'200', 'message':'', 'content':content}
+        except Exception as e:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+        return JsonResponse(result, safe=False)
+
+@csrf_exempt
+@authentication
+def bind_phone(request):                
+    if request.method == 'POST':
+        try:
+            data = request.body.decode()
+            data = json.loads(data)
+            identity = data['identity']
+            user = MyUser.get_user_by_identity(identity)
+            phone = data['phone']
+            code = data['code']
+            verificator=PhoneNumberVerificator()
+            if not verificator.CheckVerificationCode(phone, code):
+                return JsonResponse({'status':'400', 'message':'验证码错误', 'content':'none'})
+
+            combine_type = data.get('combine_type')
+            if combine_type:
+                phone_user = MyUser.objects.get(mobile=phone)
+                user = MyUser.combine(user, phone_user, combine_type)
+                redis = MyRedis()
+                key = 'identity_user' + identity
+                redis.set(key, user.id)
+                redis.expire(key, 1200)
+            else:
+                user.mobile = phone
+                user.save()
+            result = {'status':'200', 'message':'绑定成功', 'content':'none'}
+        except:
+            log_exception()
+            result = {'status':'400', 'message':'', 'content':'none'}
+
+        return JsonResponse(result, safe=False)
 
